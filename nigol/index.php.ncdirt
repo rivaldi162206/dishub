@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en" class="fullscreen-bg">
+
+<head>
+	<title>dishub.bangkalankab.go.id</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<!-- VENDOR CSS -->
+	<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="assets/vendor/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="assets/vendor/linearicons/style.css">
+	<link rel="stylesheet" href="assets/vendor/toastr/toastr.min.css">
+	<!-- MAIN CSS -->
+	<link rel="stylesheet" href="assets/css/main.css">
+	<!-- FOR DEMO PURPOSES ONLY. You should remove this in your project -->
+	<link rel="stylesheet" href="assets/css/demo.css">
+	<!-- GOOGLE FONTS -->
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet">
+	<!-- ICONS -->
+	<link rel="apple-touch-icon" sizes="76x76" href="assets/img/apple-icon.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="assets/img/icon/dishub.png">
+</head>
+
+<body>
+	<?php include 'database.php'; ?>
+	<!-- WRAPPER -->
+	<div id="wrapper">
+		<div class="vertical-align-wrap">
+			<div class="vertical-align-middle">
+				<div class="auth-box ">
+					<div class="left">
+						<div class="content">
+							<div class="header">
+								<div class="logo text-center"><img src="assets/img/icon/dishub.png" width="20%"></div>
+								<p class="lead">Login Administrator</p>
+							</div>
+							<form class="form-auth-small" method="POST">
+								<div class="form-group">
+									<label class="control-label sr-only">Username</label>
+									<input type="text" class="form-control" name="user" placeholder="Username">
+								</div>
+								<div class="form-group">
+									<label class="control-label sr-only">Password</label>
+									<input type="password" class="form-control" name="password" placeholder="Password">
+								</div>
+								<div class="form-group">
+									<label class="control-label sr-only">Token</label>
+									<input type="text" class="form-control" name="token" placeholder="Token">
+								</div>
+								<button type="submit" name="submit" class="btn btn-primary btn-sm btn-block">LOGIN</button>	
+							</form>
+							<a href="req_token.php" class="btn btn-success btn-sm btn-block" style="margin: 5px 0 5px 0;">REQ TOKEN</a>
+							<div class="bottom">
+								<span class="helper-text"><i class="fa fa-lock"></i> <a href="#">Forgot password?</a></span>
+							</div>
+							<br>
+							<?php
+						      	if (isset($_POST['submit'])) {
+						      		function filterSQL($string)
+								    {
+								    	$string = strtolower($string);
+										$string = str_replace('update', '', $string);
+										$string = str_replace('delete', '', $string);
+										$string = str_replace('insert', '', $string);
+
+										return $string;
+								    }
+							        $user 	= $_POST['user'];
+							        $pass 	= $_POST['password'];
+							        $token 	= $_POST['token'];
+
+							        //ANTI XSS
+							        $pass = strip_tags($pass);
+							        $pass = filter_var($pass, FILTER_SANITIZE_STRING);
+							        $pass = md5(trim($pass));
+
+							        //ANTI SQL INJECTION
+							        $user = mysqli_real_escape_string($con,stripslashes(strip_tags(htmlspecialchars($user,ENT_QUOTES))));
+							        $user = preg_replace('/[^\p{L}\p{N}\s]/u', '', $user);
+                        			$user = preg_replace('/[0-9]+/', '', $user);
+                        			$user = filterSQL($user);
+
+							        $pass = mysqli_real_escape_string($con,$pass);
+							        $pass = preg_replace('/[^\p{L}\p{N}\s]/u', '', $pass);
+							        $pass = filterSQL($pass);
+
+							        $token = mysqli_real_escape_string($con,stripslashes(strip_tags(htmlspecialchars($token,ENT_QUOTES))));
+							        $token = preg_replace('/[^\p{L}\p{N}\s]/u', '', $token);
+							        $token = filterSQL($token);
+							        $date_now = date("Y-m-d");
+
+							        $query = mysqli_query($con,"SELECT * FROM sslogin WHERE SSUSER = '$user'");
+			                        $row = mysqli_fetch_array($query);
+			                        $res_row = mysqli_num_rows($query);
+			                        
+
+			                        if ($res_row != 0) {
+			                            $passDB = $row['SSPASSWORD'];
+			                            $passDB = substr($passDB, 21,9).substr($passDB, 69,7).substr($passDB, -16);
+			                            if ($pass == $passDB) {
+			                                $sqlTOKEN = mysqli_query($con,"SELECT * FROM sslogin WHERE SSTOKEN = '$token'");
+			                                $rowTOKEN = mysqli_num_rows($sqlTOKEN);
+			                                $resTOKEN = mysqli_fetch_array($sqlTOKEN);
+			                                if ($rowTOKEN != 0) {
+			                                    //CEK TOKEN EXP                
+			                                    if ($resTOKEN['TGL_TOKEN'] == $date_now) {
+			                                        session_start();
+			                                        mysqli_query($con,"INSERT INTO sslog SET AKUN = '$resTOKEN[SSUSER]', LOG = 'Login', WAKTU = '$datetime' ");
+			                                        $_SESSION['id'] = $resTOKEN['ID'];
+			                                        $_SESSION['user'] = $resTOKEN['SSUSER'];
+			                                        $_SESSION['pass'] = $resTOKEN['SSPASSWORD'];
+			                                        $_SESSION['level'] = $resTOKEN['LEVEL'];
+			                                        ?>
+			                                            <div class="sufee-alert alert with-close alert-success alert-dismissible fade show">
+			                                                <span class="badge badge-pill badge-success">Login Sukses!</span>
+			                                                    Selamat Datang <i class="fa fa-smile-o"></i>
+			                                            </div>
+
+			                                        <?php
+			                                            echo"<meta http-equiv='refresh' content='1; url=modul'>";
+
+			                                    }else{
+			                                        ?>
+			                                            <div class="alert alert-dismissible alert-danger">
+														  	<button type="button" class="close" data-dismiss="alert">&times;</button>
+														  	<strong>Gagal!</strong> Token Kadaluarsa
+														</div>
+			                                        <?php
+			                                    }
+			                                }else{
+			                                    ?>
+			                                        <div class="alert alert-dismissible alert-danger">
+													  	<button type="button" class="close" data-dismiss="alert">&times;</button>
+													  	<strong>Gagal!</strong> Token tidak sama
+													</div>
+			                                    <?php
+			                                }       
+			                            }else{
+			                                ?>
+			                                    <div class="alert alert-dismissible alert-danger">
+												  	<button type="button" class="close" data-dismiss="alert">&times;</button>
+												  	<strong>Gagal!</strong> Username atau Password Salah!
+												</div>
+			                                <?php
+			                            }
+			                        }else{
+			                            ?>
+			                                <div class="alert alert-dismissible alert-danger">
+											  	<button type="button" class="close" data-dismiss="alert">&times;</button>
+											  	<strong>Gagal!</strong> Username atau Password Salah!
+											</div>
+			                            <?php
+			                        }
+						        }
+						    ?> 
+						</div>
+					</div>
+					<div class="right">
+						<div class="overlay"></div>
+						<div class="content text">
+							<h1 class="heading">Login Sistem Administrator</h1>
+							<p>Dinas Perhubungan Kabupaten Bangkalan</p>
+						</div>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<!-- END WRAPPER -->
+
+	<script src="assets/vendor/jquery/jquery.min.js"></script>
+	<script src="assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>
