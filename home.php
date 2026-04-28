@@ -24,15 +24,15 @@
     <span class="carousel-control-next-icon" aria-hidden="true"></span>
     <span class="sr-only">Next</span>
   </a>
+  <h1 style="text-align: center; text-shadow: 2px 2px 5px black;">selamat datang di website Dishub Kabupaten Bangkalan </h1>
 </div>
-
 <!-- layanan Area -->
 <section class="section-gap" style="background-color: #f5f5f5">
   <div class="container">
     <div class="row d-flex justify-content-center">
       <div class="menu-content pb-30 col-lg-10">
         <div class="title text-center">
-          <h1 class="mb-10">Layanan</h1>
+          <h1 class="mb-10" ">Layanan</h1>
           <hr style="border-color: #2e3192; border-width: 3px; max-width: 80px;">
         </div>
       </div>
