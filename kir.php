@@ -9,7 +9,7 @@
 			</div>
 		</div>						
 		<div id="" class="col-lg-12">
-			<div class="kir-box" style="background: linear-gradient(135deg, #1e3a8a, #000000); border-radius:20px; padding: 30px;">
+			<div class="kir-box" style="background: linear-gradient(135deg, #1e3a8a, #000000); border-radius:20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
 				<h3 class="mb-10 pb-10 pt-10" style="color: white;">
 				KIR (bahasa Belanda = KEUR) merupakan kumpulan rangkaian kegiatan untuk melakukan uji kendaraan bermotor sebagai tanda bahwa kendaraan tersebut layak digunakan secara teknis di jalan raya, khususnya bagi kendaraan yang membawa angkutan penumpang dan barang. <br><br>
 
