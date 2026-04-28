@@ -9,6 +9,7 @@
 				<iframe width="100%" height="250"
 					src="http://localhost:5000/video/1">
 				</iframe>
+                <h5 style="text-align: center;">Jumlah kendaraan saat ini</h5>
 				<h3 id="count1" style="text-align:center;color:#2e3192;">0</h3>
                 <h4 id="status1" style="text-align:center;">-</h4>
 				<canvas id="chart1"></canvas>
@@ -19,6 +20,7 @@
                 <iframe width="100%" height="250" 
                      src="http://localhost:5000/video/2">
                 </iframe>
+                <h5 style="text-align: center;">Jumlah kendaraan saat ini</h5>
                 <h3 id="count2" style="text-align:center;color:#2e3192;">0</h3>
                 <h4 id="status2" style="text-align:center;">-</h4>
                 <canvas id="chart2"></canvas>
@@ -29,6 +31,7 @@
                 <iframe width="100%" height="250" 
                      src="http://localhost:5000/video/3">
                 </iframe>
+                <h5 style="text-align: center;">Jumlah kendaraan saat ini</h5>
                 <h3 id="count3" style="text-align:center;color:#2e3192;">0</h3>
                 <h4 id="status3" style="text-align:center;">-</h4>
                 <canvas id="chart3"></canvas>
@@ -39,6 +42,7 @@
                 <iframe width="100%" height="250" 
                      src="http://localhost:5000/video/4">
                 </iframe>
+                <h5 style="text-align: center;">Jumlah kendaraan saat ini</h5>
                 <h3 id="count4" style="text-align:center;color:#2e3192;">0</h3>
                 <h4 id="status4" style="text-align:center;">-</h4>
                 <canvas id="chart4"></canvas>
