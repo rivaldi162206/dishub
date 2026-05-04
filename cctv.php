@@ -104,6 +104,8 @@ let chart4 = createChart('chart4');
 // UPDATE PER KAMERA
 // =========================
 function updateCamera(cameraId, countId, chart) {
+
+    // ✅ COUNT dari DATABASE (PHP)
     fetch("get_count.php?camera_id=" + cameraId) 
     .then(res => res.json())
     .then(data => {
@@ -111,7 +113,7 @@ function updateCamera(cameraId, countId, chart) {
         let count = parseInt(data.total);
         let now = new Date().toLocaleTimeString();
 
-        // update angka
+        // tampilkan jumlah kendaraan
         document.getElementById(countId).innerText = count;
 
         // update chart
@@ -124,29 +126,28 @@ function updateCamera(cameraId, countId, chart) {
         }
 
         chart.update();
-
-        // ======================
-        // STATUS GLOBAL (AMBIL DARI KAMERA 1)
-        // ======================
-        let status = "LANCAR";
-        color ="green";
-
-        if(count > 40){
-            status = "PADAT";
-            color = "orange";
-        }
-        if(count > 100){
-            status = "MACET";
-            color = "red";
-        }
-
-        let el = document.getElementById("status" + cameraId);
-        el.innerText = status;
-        el.style.color = color;
     });
+
+  fetch("http://localhost:5000/api/count/" + cameraId)
+.then(res => res.json())
+.then(ai => {
+
+    console.log("AI STATUS:", ai); // 🔥 WAJIB CEK
+
+    let status = ai.status || "-";
+
+    let color = "green";
+    if(status === "PADAT") color = "orange";
+    if(status === "MACET") color = "red";
+
+    let el = document.getElementById("status" + cameraId);
+    el.innerText = status;
+    el.style.color = color;
+})
+.catch(err => {
+    console.log("ERROR:", err);
+});
 }
-
-
 // =========================
 // LOOP UPDATE
 // =========================
