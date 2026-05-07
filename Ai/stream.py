@@ -55,7 +55,7 @@ class DBPool:
 db_pool = DBPool()
 
 # ─────────────────────────────────────────
-# Density computation
+# Density computation (Exponential Moving Average)
 # ─────────────────────────────────────────
 class EMADensity:
     def __init__(self, alpha=0.3):
