@@ -1,3 +1,6 @@
+<?php
+include 'database.php';
+?>
 <section class="blog-posts-area section-gap mt-70 mb-30">
 	<div class="container">
 		<div class="row">
