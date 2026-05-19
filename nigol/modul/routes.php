@@ -102,6 +102,23 @@
 			include 'pages/log_sys.php';
 			break;
 
+			// CCTV
+        case 'cctv':
+	       include 'pages/cctv.php';
+	       break;
+
+        case 'cctv_add':
+	       include 'pages/cctv_add.php';
+	       break;
+
+        case 'cctv_edit':
+	       include 'pages/cctv_edit.php';
+	       break;
+
+        case 'cctv_hapus':
+	       include 'pages/cctv_hapus.php';
+	       break;
+
 		case 'keluar':
 			include '../logout.php';
 			break;
