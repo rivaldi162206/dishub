@@ -1,90 +1,95 @@
+<?php
+include 'database.php';
+
+$query = mysqli_query($con, "SELECT * FROM cameras WHERE is_active = 1");
+?>
 
 <section class="blog-posts-area section-gap mt-70 mb-30">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-12 post-list blog-post-list">
+    <div class="container">
         <div class="row">
-            <div class="col-lg-6">
-				<h4 style="text-align:center;">Bangkalan Kota</h4>
-				<iframe width="100%" height="250"
-					src="http://localhost:5000/video/1">
-				</iframe>
-                <h5 style="text-align: center;">Jumlah kendaraan saat ini</h5>
-				<h3 id="count1" style="text-align:center;color:#2e3192;">0</h3>
-                <h4 id="status1" style="text-align:center;">-</h4>
-				<canvas id="chart1"></canvas>
-			</div>
-            <!-- kamera vidio2-->
-            <div class="col-lg-6">
-                <h4 style="text-align:center;">Arosbaya</h4>
-                <iframe width="100%" height="250" 
-                     src="http://localhost:5000/video/2">
-                </iframe>
-                <h5 style="text-align: center;">Jumlah kendaraan saat ini</h5>
-                <h3 id="count2" style="text-align:center;color:#2e3192;">0</h3>
-                <h4 id="status2" style="text-align:center;">-</h4>
-                <canvas id="chart2"></canvas>
+            <div class="col-lg-12 post-list blog-post-list">
+
+                <div class="row">
+
+                <?php while($cam = mysqli_fetch_assoc($query)) { ?>
+
+                    <div class="col-lg-6 mb-5">
+
+                        <!-- NAMA LOKASI -->
+                        <h4 style="text-align:center;color:white;">
+                            <?php echo $cam['location']; ?>
+                        </h4>
+
+                        <!-- STREAM VIDEO -->
+                        <iframe
+                            width="100%"
+                            height="250"
+                            src="http://localhost:5000/video/<?php echo $cam['id']; ?>"
+                            frameborder="0"
+                            allowfullscreen>
+                        </iframe>
+
+                        <!-- JUMLAH -->
+                        <h5 style="text-align:center;color:white;">
+                            Jumlah kendaraan saat ini
+                        </h5>
+
+                        <h3
+                            id="count<?php echo $cam['id']; ?>"
+                            style="text-align:center;color:#00e5ff;">
+                            0
+                        </h3>
+
+                        <!-- STATUS -->
+                        <h4
+                            id="status<?php echo $cam['id']; ?>"
+                            style="text-align:center;color:white;">
+                            -
+                        </h4>
+
+                        <!-- CHART -->
+                        <canvas id="chart<?php echo $cam['id']; ?>"></canvas>
+
+                    </div>
+
+                <?php } ?>
+
+                </div>
+
             </div>
-            <!-- kamera video 3 -->
-            <div class="col-lg-6">
-                <h4 style="text-align:center;">tangkel</h4>
-                <iframe width="100%" height="250" 
-                     src="http://localhost:5000/video/3">
-                </iframe>
-                <h5 style="text-align: center;">Jumlah kendaraan saat ini</h5>
-                <h3 id="count3" style="text-align:center;color:#2e3192;">0</h3>
-                <h4 id="status3" style="text-align:center;">-</h4>
-                <canvas id="chart3"></canvas>
-            </div>
-            <!-- kamera vidio 4-->
-              <div class="col-lg-6">
-                <h4 style="text-align:center;">Alun-alun</h4>
-                <iframe width="100%" height="250" 
-                     src="http://localhost:5000/video/4">
-                </iframe>
-                <h5 style="text-align: center;">Jumlah kendaraan saat ini</h5>
-                <h3 id="count4" style="text-align:center;color:#2e3192;">0</h3>
-                <h4 id="status4" style="text-align:center;">-</h4>
-                <canvas id="chart4"></canvas>
-            </div>
-		</div>		
-        </div>    
-				</div>				
-			</div>
-		</div>
-	</div>	
+        </div>
+    </div>
 </section>
 
-<!--js chart-->
+<!-- CHART JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-function updateCount() {
-    fetch("get_count.php")
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("vehicleCount").innerText = data.total;
-        })
-        .catch(error => console.log("Error:", error));
-}
 
-setInterval(updateCount, 1000);
-</script>
-<script>
-// CHART PER KAMERA
+let charts = {};
+
+// ===============================
+// CREATE CHART
+// ===============================
 function createChart(canvasId){
+
     return new Chart(document.getElementById(canvasId), {
+
         type: 'line',
+
         data: {
             labels: [],
             datasets: [{
                 label: 'Jumlah Kendaraan',
                 data: [],
-                borderWidth: 2
+                borderWidth: 2,
+                tension: 0.3
             }]
         },
+
         options: {
             responsive: true,
+
             scales: {
                 y: {
                     beginAtZero: true
@@ -94,68 +99,123 @@ function createChart(canvasId){
     });
 }
 
-let chart1 = createChart('chart1');
-let chart2 = createChart('chart2');
-let chart3 = createChart('chart3');
-let chart4 = createChart('chart4');
+// ===============================
+// INIT CHART SEMUA KAMERA
+// ===============================
+<?php
 
+$queryChart = mysqli_query($con, "SELECT * FROM cameras WHERE is_active = 1");
 
-// =========================
-// UPDATE PER KAMERA
-// =========================
-function updateCamera(cameraId, countId, chart) {
+while($camChart = mysqli_fetch_assoc($queryChart)) {
 
-    // ✅ COUNT dari DATABASE (PHP)
-    fetch("get_count.php?camera_id=" + cameraId) 
-    .then(res => res.json())
+?>
+
+charts[<?php echo $camChart['id']; ?>] =
+    createChart('chart<?php echo $camChart['id']; ?>');
+
+<?php } ?>
+
+// ===============================
+// UPDATE CAMERA
+// ===============================
+function updateCamera(cameraId){
+
+    let chart = charts[cameraId];
+
+    // ==========================
+    // AMBIL DATA DARI DATABASE PHP
+    // ==========================
+    fetch("get_count.php?camera_id=" + cameraId)
+
+    .then(response => response.json())
+
     .then(data => {
 
         let count = parseInt(data.total);
+
+        if(isNaN(count)){
+            count = 0;
+        }
+
         let now = new Date().toLocaleTimeString();
 
-        // tampilkan jumlah kendaraan
-        document.getElementById(countId).innerText = count;
+        // UPDATE TEXT
+        document.getElementById(
+            "count" + cameraId
+        ).innerText = count;
 
-        // update chart
+        // UPDATE CHART
         chart.data.labels.push(now);
+
         chart.data.datasets[0].data.push(count);
 
         if(chart.data.labels.length > 10){
+
             chart.data.labels.shift();
+
             chart.data.datasets[0].data.shift();
         }
 
         chart.update();
+    })
+
+    .catch(error => {
+        console.log("COUNT ERROR:", error);
     });
 
-  fetch("http://localhost:5000/api/count/" + cameraId)
-.then(res => res.json())
-.then(ai => {
 
-    console.log("AI STATUS:", ai); // 🔥 WAJIB CEK
+    // ==========================
+    // STATUS AI FASTAPI
+    // ==========================
+    fetch("http://localhost:5000/api/count/" + cameraId)
 
-    let status = ai.status || "-";
+    .then(response => response.json())
 
-    let color = "green";
-    if(status === "PADAT") color = "orange";
-    if(status === "MACET") color = "red";
+    .then(ai => {
 
-    let el = document.getElementById("status" + cameraId);
-    el.innerText = status;
-    el.style.color = color;
-})
-.catch(err => {
-    console.log("ERROR:", err);
-});
+        let status = ai.status || "-";
+
+        let color = "green";
+
+        if(status === "PADAT"){
+            color = "orange";
+        }
+
+        if(status === "MACET"){
+            color = "red";
+        }
+
+        let statusElement = document.getElementById(
+            "status" + cameraId
+        );
+
+        statusElement.innerText = status;
+
+        statusElement.style.color = color;
+    })
+
+    .catch(error => {
+        console.log("STATUS ERROR:", error);
+    });
 }
-// =========================
-// LOOP UPDATE
-// =========================
+
+// ===============================
+// LOOP UPDATE SEMUA CAMERA
+// ===============================
 setInterval(() => {
-    updateCamera(1, "count1", chart1);
-    updateCamera(2, "count2", chart2);
-    updateCamera(3, "count3", chart3);
-    updateCamera(4, "count4", chart4);
+
+<?php
+
+$queryLoop = mysqli_query($con, "SELECT * FROM cameras WHERE is_active = 1");
+
+while($camLoop = mysqli_fetch_assoc($queryLoop)) {
+
+?>
+
+    updateCamera(<?php echo $camLoop['id']; ?>);
+
+<?php } ?>
+
 }, 1000);
 
 </script>

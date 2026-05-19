@@ -1,3 +1,6 @@
+<?php
+include 'database.php';
+?>
 <section class="upcoming-event-area section-gap mt-70 mb-30">
 	<div class="container">
 		<div class="row d-flex justify-content-center">

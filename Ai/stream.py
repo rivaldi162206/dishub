@@ -287,12 +287,34 @@ class DailyScheduler:
 # ─────────────────────────────────────────
 # FastAPI routes
 # ─────────────────────────────────────────
-cameras = {
-    1: TrafficCamera(1, "vidio.mp4"),
-    2: TrafficCamera(2, "vidio2.mp4"),
-    3: TrafficCamera(3, "vidio3.mp4"),
-    4: TrafficCamera(4, "vidio4.mp4"),
-}
+def load_cameras():
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="",
+        database="dishub_db"
+    )
+
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("SELECT * FROM cameras WHERE is_active = 1")
+
+    rows = cur.fetchall()
+
+    conn.close()
+
+    loaded_cameras = {}
+
+    for row in rows:
+        loaded_cameras[row["id"]] = TrafficCamera(
+            row["id"],
+            row["camera_url"]
+        )
+
+    return loaded_cameras
+
+
+cameras = load_cameras()
  
 # Mulai thread deteksi per kamera
 for cam in cameras.values():
